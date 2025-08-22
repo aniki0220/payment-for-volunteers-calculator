@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import * as XLSX from "xlsx";
 import { mergeExcelsToPeopleJson } from "./lib/roster";
 import { buildPaymentsRows, exportPaymentsXlsx } from "./lib/payments";
@@ -33,9 +33,10 @@ export default function App() {
       setJsonUrl(url);
       setPaymentsReady(true);
     } catch (e: any) {
-      alert("合併失敗：" + e?.message ?? e);
+      alert("合併失敗：" + e && e.message ? e.message : e.toString());
     }
   }
+
 
   function onExportJson() {
     if (!jsonUrl) return;
@@ -53,8 +54,8 @@ export default function App() {
 
   return (
     <div style={{ maxWidth: 960, margin: "40px auto", padding: 16, fontFamily: "system-ui, sans-serif" }}>
-      <h1>Roster Tool（前端版）</h1>
-      <p>上傳多個 Excel（.xlsx），合併→去重→輸出 roster.json 與 payments.xlsx。</p>
+      <h1>給志工的錢💸 計算器</h1>
+      <p>上傳多個 Excel（.xlsx）</p>
 
       <div style={{ marginTop: 16 }}>
         <input
@@ -66,9 +67,9 @@ export default function App() {
       </div>
 
       <div style={{ marginTop: 16, display: "flex", gap: 8 }}>
-        <button disabled={!canMerge} onClick={onMerge}>合併並產生 JSON</button>
-        <button disabled={!jsonUrl} onClick={onExportJson}>下載 roster.json</button>
-        <button disabled={!paymentsReady} onClick={onExportPayments}>下載 payments.xlsx</button>
+        <button disabled={!canMerge} onClick={onMerge}>開始合併</button>
+        <button disabled={!paymentsReady} onClick={onExportPayments}>下載結果</button>
+        <button hidden disabled={!jsonUrl} onClick={onExportJson}>下載 roster.json</button>
       </div>
 
       {people && (
