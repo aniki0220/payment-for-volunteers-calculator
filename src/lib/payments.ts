@@ -62,7 +62,11 @@ export function buildPaymentsRows(people: PeopleDict) {
       姓名: name,
       身分證字號: pid,
       值勤時數: dutyHoursStr,
+      "誤餐費(次數)": totalShifts,
+      "每次費用(100元)": "×100＝",
       誤餐費: meals,
+      "交通費(次數)": totalShifts,
+      "每次費用(50元)": "×50＝",
       交通費: traffic,
       給付總額: total,
       蓋章: "",
@@ -75,8 +79,26 @@ export function buildPaymentsRows(people: PeopleDict) {
   return rows;
 }
 
+export function buildPaymentsExportRows(rows: any[]) {
+  const totalRow = {
+    序號: "",
+    姓名: "總計",
+    身分證字號: "",
+    值勤時數: "",
+    "誤餐費(次數)": rows.reduce((sum, row) => sum + safeFloat(row["誤餐費(次數)"]), 0),
+    "每次費用(100元)": "",
+    誤餐費: rows.reduce((sum, row) => sum + safeFloat(row.誤餐費), 0),
+    "交通費(次數)": rows.reduce((sum, row) => sum + safeFloat(row["交通費(次數)"]), 0),
+    "每次費用(50元)": "",
+    交通費: rows.reduce((sum, row) => sum + safeFloat(row.交通費), 0),
+    給付總額: rows.reduce((sum, row) => sum + safeFloat(row.給付總額), 0),
+    蓋章: "",
+  };
+  return [...rows, totalRow];
+}
+
 export function exportPaymentsXlsx(rows: any[], filename: string) {
-  const ws = XLSX.utils.json_to_sheet(rows);
+  const ws = XLSX.utils.json_to_sheet(buildPaymentsExportRows(rows));
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, "payments");
   XLSX.writeFile(wb, filename);

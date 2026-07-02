@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import * as XLSX from "xlsx";
 import { mergeExcelsToPeopleJson } from "./lib/roster";
-import { buildPaymentsRows, exportPaymentsXlsx } from "./lib/payments";
+import { buildPaymentsExportRows, buildPaymentsRows, exportPaymentsXlsx } from "./lib/payments";
 
 type PeopleDict = Record<string, any>;
 
@@ -12,6 +12,14 @@ export default function App() {
   const [paymentsReady, setPaymentsReady] = useState(false);
 
   const canMerge = useMemo(() => files && files.length > 0, [files]);
+  const paymentPreviewRows = useMemo(() => {
+    if (!people) return [];
+    return buildPaymentsExportRows(buildPaymentsRows(people));
+  }, [people]);
+  const paymentPreviewColumns = useMemo(
+    () => (paymentPreviewRows[0] ? Object.keys(paymentPreviewRows[0]) : []),
+    [paymentPreviewRows],
+  );
 
   async function onMerge() {
     if (!files || files.length === 0) return;
@@ -54,7 +62,7 @@ export default function App() {
 
   return (
     <div style={{ maxWidth: 960, margin: "40px auto", padding: 16, fontFamily: "system-ui, sans-serif" }}>
-      <h1>給志工的錢💸 計算器</h1>
+      <h1>給志工的錢💸 計算器(v2.0)</h1>
       <p>上傳多個 Excel（.xlsx）</p>
 
       <div style={{ marginTop: 16 }}>
@@ -74,10 +82,49 @@ export default function App() {
 
       {people && (
         <details style={{ marginTop: 16 }}>
-          <summary>預覽（僅前幾筆）</summary>
-          <pre style={{ whiteSpace: "pre-wrap" }}>
-            {JSON.stringify(Object.fromEntries(Object.entries(people).slice(0, 3)), null, 2)}
-          </pre>
+          <summary>預覽匯出表格</summary>
+          <div style={{ marginTop: 12, overflowX: "auto" }}>
+            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}>
+              <thead>
+                <tr>
+                  {paymentPreviewColumns.map((column) => (
+                    <th
+                      key={column}
+                      style={{
+                        border: "1px solid #d0d7de",
+                        padding: "8px 10px",
+                        textAlign: "left",
+                        whiteSpace: "nowrap",
+                        background: "#f6f8fa",
+                      }}
+                    >
+                      {column}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {paymentPreviewRows.map((row, rowIndex) => (
+                  <tr key={rowIndex}>
+                    {paymentPreviewColumns.map((column) => (
+                      <td
+                        key={column}
+                        style={{
+                          border: "1px solid #d0d7de",
+                          padding: "8px 10px",
+                          whiteSpace: "nowrap",
+                          fontWeight: row.姓名 === "總計" ? 700 : 400,
+                          background: row.姓名 === "總計" ? "#fff8c5" : "transparent",
+                        }}
+                      >
+                        {row[column]}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </details>
       )}
     </div>
