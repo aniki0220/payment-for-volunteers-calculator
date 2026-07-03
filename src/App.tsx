@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import * as XLSX from "xlsx";
+import "./App.css";
 import { mergeExcelsToPeopleJson } from "./lib/roster";
 import { buildPaymentsExportRows, buildPaymentsRows, exportPaymentsXlsx } from "./lib/payments";
 
@@ -11,7 +12,8 @@ export default function App() {
   const [jsonUrl, setJsonUrl] = useState<string | null>(null);
   const [paymentsReady, setPaymentsReady] = useState(false);
 
-  const canMerge = useMemo(() => files && files.length > 0, [files]);
+  const selectedFiles = useMemo(() => Array.from(files ?? []), [files]);
+  const canMerge = selectedFiles.length > 0;
   const paymentPreviewRows = useMemo(() => {
     if (!people) return [];
     return buildPaymentsExportRows(buildPaymentsRows(people));
@@ -24,16 +26,14 @@ export default function App() {
   async function onMerge() {
     if (!files || files.length === 0) return;
     try {
-      // 讀進多個 Excel 並合併
       const workbooks: XLSX.WorkBook[] = [];
-      for (const f of Array.from(files)) {
-        const buf = await f.arrayBuffer();
+      for (const file of Array.from(files)) {
+        const buf = await file.arrayBuffer();
         workbooks.push(XLSX.read(buf, { type: "array" }));
       }
       const peopleDict = mergeExcelsToPeopleJson(workbooks);
       setPeople(peopleDict);
 
-      // 下載 roster.json
       const blob = new Blob([JSON.stringify(peopleDict, null, 2)], {
         type: "application/json;charset=utf-8",
       });
@@ -41,10 +41,9 @@ export default function App() {
       setJsonUrl(url);
       setPaymentsReady(true);
     } catch (e: any) {
-      alert("合併失敗：" + e && e.message ? e.message : e.toString());
+      alert("合併失敗：" + (e && e.message ? e.message : e.toString()));
     }
   }
-
 
   function onExportJson() {
     if (!jsonUrl) return;
@@ -61,72 +60,117 @@ export default function App() {
   }
 
   return (
-    <div style={{ maxWidth: 960, margin: "40px auto", padding: 16, fontFamily: "system-ui, sans-serif" }}>
-      <h1>給志工的錢💸 計算器(v2.0)</h1>
-      <p>上傳多個 Excel（.xlsx）</p>
+    <main className="app-shell">
+      <section className="hero">
+        <div>
+          <p className="eyebrow">Volunteer Payment Calculator</p>
+          <h1>志工給付計算器</h1>
+          <p className="hero-copy">整併值勤 Excel，產生可下載的給付明細表。</p>
+        </div>
+        <div className="status-strip" aria-label="目前狀態">
+          <div>
+            <span className="status-label">檔案</span>
+            <strong>{selectedFiles.length}</strong>
+          </div>
+          <div>
+            <span className="status-label">筆數</span>
+            <strong>{paymentPreviewRows.length}</strong>
+          </div>
+          <div>
+            <span className="status-label">狀態</span>
+            <strong>{paymentsReady ? "可匯出" : "待合併"}</strong>
+          </div>
+        </div>
+      </section>
 
-      <div style={{ marginTop: 16 }}>
-        <input
-          type="file"
-          accept=".xlsx"
-          multiple
-          onChange={(e) => setFiles(e.target.files)}
-        />
-      </div>
+      <section className="workspace">
+        <div className="panel upload-panel">
+          <div className="panel-header">
+            <div>
+              <h2>Excel 檔案</h2>
+              <p>支援一次選取多個 .xlsx 檔。</p>
+            </div>
+          </div>
 
-      <div style={{ marginTop: 16, display: "flex", gap: 8 }}>
-        <button disabled={!canMerge} onClick={onMerge}>開始合併</button>
-        <button disabled={!paymentsReady} onClick={onExportPayments}>下載結果</button>
-        <button hidden disabled={!jsonUrl} onClick={onExportJson}>下載 roster.json</button>
-      </div>
+          <label className="file-drop">
+            <input
+              type="file"
+              accept=".xlsx"
+              multiple
+              onChange={(e) => setFiles(e.target.files)}
+            />
+            <span className="file-drop-title">選擇 Excel 檔</span>
+            <span className="file-drop-meta">
+              {selectedFiles.length > 0
+                ? `已選擇 ${selectedFiles.length} 個檔案`
+                : "尚未選擇檔案"}
+            </span>
+          </label>
 
-      {people && (
-        <details style={{ marginTop: 16 }}>
-          <summary>預覽匯出表格</summary>
-          <div style={{ marginTop: 12, overflowX: "auto" }}>
-            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}>
-              <thead>
-                <tr>
-                  {paymentPreviewColumns.map((column) => (
-                    <th
-                      key={column}
-                      style={{
-                        border: "1px solid #d0d7de",
-                        padding: "8px 10px",
-                        textAlign: "left",
-                        whiteSpace: "nowrap",
-                        background: "#f6f8fa",
-                      }}
-                    >
-                      {column}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {paymentPreviewRows.map((row, rowIndex) => (
-                  <tr key={rowIndex}>
+          {selectedFiles.length > 0 && (
+            <ul className="file-list" aria-label="已選擇檔案">
+              {selectedFiles.map((file) => (
+                <li key={`${file.name}-${file.lastModified}`}>
+                  <span>{file.name}</span>
+                  <small>{Math.max(1, Math.round(file.size / 1024))} KB</small>
+                </li>
+              ))}
+            </ul>
+          )}
+
+          <div className="actions">
+            <button className="primary-button" disabled={!canMerge} onClick={onMerge}>
+              合併資料
+            </button>
+            <button className="secondary-button" disabled={!paymentsReady} onClick={onExportPayments}>
+              下載 Excel
+            </button>
+            <button hidden disabled={!jsonUrl} onClick={onExportJson}>
+              下載 roster.json
+            </button>
+          </div>
+        </div>
+
+        <div className="panel preview-panel">
+          <div className="panel-header">
+            <div>
+              <h2>匯出預覽</h2>
+              <p>{paymentPreviewRows.length > 0 ? "內容與下載的 Excel 相同。" : "合併後會顯示給付明細。"}</p>
+            </div>
+          </div>
+
+          {paymentPreviewRows.length > 0 ? (
+            <div className="table-wrap">
+              <table className="preview-table">
+                <thead>
+                  <tr>
                     {paymentPreviewColumns.map((column) => (
-                      <td
-                        key={column}
-                        style={{
-                          border: "1px solid #d0d7de",
-                          padding: "8px 10px",
-                          whiteSpace: "nowrap",
-                          fontWeight: row.姓名 === "總計" ? 700 : 400,
-                          background: row.姓名 === "總計" ? "#fff8c5" : "transparent",
-                        }}
-                      >
-                        {row[column]}
-                      </td>
+                      <th key={column}>{column}</th>
                     ))}
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </details>
-      )}
-    </div>
+                </thead>
+                <tbody>
+                  {paymentPreviewRows.map((row, rowIndex) => {
+                    const isTotal = row["姓名"] === "總計";
+                    return (
+                      <tr key={rowIndex} className={isTotal ? "total-row" : undefined}>
+                        {paymentPreviewColumns.map((column) => (
+                          <td key={column}>{row[column]}</td>
+                        ))}
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <div className="empty-state">
+              <strong>尚無預覽資料</strong>
+              <span>選取檔案並合併後，表格會出現在這裡。</span>
+            </div>
+          )}
+        </div>
+      </section>
+    </main>
   );
 }

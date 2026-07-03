@@ -1,42 +1,354 @@
-#root {
-  max-width: 1280px;
+:root {
+  color: #1f2933;
+  background: #eef2f6;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background:
+    linear-gradient(180deg, #f7fafc 0%, #edf2f7 42%, #e8eef3 100%);
+}
+
+button,
+input {
+  font: inherit;
+}
+
+button {
+  border: 0;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.48;
+}
+
+.app-shell {
+  width: min(1180px, calc(100% - 32px));
   margin: 0 auto;
-  padding: 2rem;
+  padding: 36px 0 48px;
+}
+
+.hero {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 18px 0 28px;
+}
+
+.eyebrow {
+  margin: 0 0 8px;
+  color: #0f766e;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+h1,
+h2,
+p {
+  margin: 0;
+}
+
+h1 {
+  color: #17202a;
+  font-size: clamp(32px, 6vw, 52px);
+  line-height: 1.08;
+}
+
+.hero-copy {
+  max-width: 560px;
+  margin-top: 12px;
+  color: #566573;
+  font-size: 17px;
+}
+
+.status-strip {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(86px, 1fr));
+  min-width: 320px;
+  border: 1px solid #d5dee7;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #ffffff;
+  box-shadow: 0 14px 32px rgba(31, 41, 55, 0.08);
+}
+
+.status-strip > div {
+  padding: 14px 16px;
+  border-left: 1px solid #e2e8f0;
+}
+
+.status-strip > div:first-child {
+  border-left: 0;
+}
+
+.status-label {
+  display: block;
+  margin-bottom: 4px;
+  color: #718096;
+  font-size: 12px;
+}
+
+.status-strip strong {
+  color: #1a202c;
+  font-size: 20px;
+}
+
+.workspace {
+  display: grid;
+  grid-template-columns: minmax(300px, 360px) minmax(0, 1fr);
+  gap: 20px;
+  align-items: start;
+}
+
+.panel {
+  border: 1px solid #d5dee7;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 18px 40px rgba(31, 41, 55, 0.08);
+}
+
+.upload-panel {
+  padding: 20px;
+}
+
+.preview-panel {
+  overflow: hidden;
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 0 0 16px;
+}
+
+.preview-panel .panel-header {
+  padding: 20px 20px 16px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.panel-header h2 {
+  color: #1f2933;
+  font-size: 18px;
+  line-height: 1.2;
+}
+
+.panel-header p {
+  margin-top: 6px;
+  color: #64748b;
+  font-size: 14px;
+}
+
+.file-drop {
+  display: grid;
+  gap: 6px;
+  padding: 22px;
+  border: 1px dashed #94a3b8;
+  border-radius: 8px;
+  background: #f8fafc;
+  cursor: pointer;
+  transition:
+    border-color 160ms ease,
+    background 160ms ease,
+    transform 160ms ease;
+}
+
+.file-drop:hover {
+  border-color: #0f766e;
+  background: #f0fdfa;
+}
+
+.file-drop input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}
+
+.file-drop-title {
+  color: #1f2933;
+  font-weight: 700;
+}
+
+.file-drop-meta {
+  color: #64748b;
+  font-size: 14px;
+}
+
+.file-list {
+  display: grid;
+  gap: 8px;
+  max-height: 220px;
+  margin: 16px 0 0;
+  padding: 0;
+  overflow: auto;
+  list-style: none;
+}
+
+.file-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.file-list span {
+  min-width: 0;
+  overflow: hidden;
+  color: #334155;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.file-list small {
+  flex: 0 0 auto;
+  color: #718096;
+}
+
+.actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.primary-button,
+.secondary-button {
+  min-height: 42px;
+  border-radius: 8px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.primary-button {
+  background: #0f766e;
+  color: #ffffff;
+}
+
+.primary-button:hover:not(:disabled) {
+  background: #115e59;
+}
+
+.secondary-button {
+  border: 1px solid #b6c2cf;
+  background: #ffffff;
+  color: #263445;
+}
+
+.secondary-button:hover:not(:disabled) {
+  border-color: #0f766e;
+  color: #0f766e;
+}
+
+.table-wrap {
+  overflow: auto;
+  max-height: 62vh;
+}
+
+.preview-table {
+  width: 100%;
+  min-width: 980px;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 14px;
+}
+
+.preview-table th,
+.preview-table td {
+  padding: 10px 12px;
+  border-right: 1px solid #e2e8f0;
+  border-bottom: 1px solid #e2e8f0;
+  color: #263445;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.preview-table th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: #f1f5f9;
+  color: #475569;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.preview-table tr:hover td {
+  background: #f8fafc;
+}
+
+.preview-table .total-row td {
+  background: #fff7d6;
+  color: #1f2933;
+  font-weight: 800;
+}
+
+.preview-table .total-row:hover td {
+  background: #fff1b8;
+}
+
+.empty-state {
+  display: grid;
+  place-items: center;
+  min-height: 280px;
+  padding: 32px;
+  color: #64748b;
   text-align: center;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+.empty-state strong {
+  display: block;
+  margin-bottom: 6px;
+  color: #334155;
+  font-size: 18px;
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
+@media (max-width: 860px) {
+  .app-shell {
+    width: min(100% - 24px, 1180px);
+    padding-top: 20px;
   }
-  to {
-    transform: rotate(360deg);
-  }
-}
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
+  .hero {
+    display: grid;
+  }
+
+  .status-strip {
+    min-width: 0;
+  }
+
+  .workspace {
+    grid-template-columns: 1fr;
   }
 }
 
-.card {
-  padding: 2em;
-}
+@media (max-width: 560px) {
+  .status-strip,
+  .actions {
+    grid-template-columns: 1fr;
+  }
 
-.read-the-docs {
-  color: #888;
+  .status-strip > div {
+    border-top: 1px solid #e2e8f0;
+    border-left: 0;
+  }
+
+  .status-strip > div:first-child {
+    border-top: 0;
+  }
 }
