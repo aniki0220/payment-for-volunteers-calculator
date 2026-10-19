@@ -65,7 +65,7 @@ export function buildPaymentsRows(people: PeopleDict) {
       "誤餐費(次數)": totalShifts,
       "每次費用(120元)": "×120＝",
       誤餐費: meals,
-      "交通費(次數)": totalShifts,
+      "交通費(次數)": uniqueDays,
       "每次費用(50元)": "×50＝",
       交通費: traffic,
       給付總額: total,
